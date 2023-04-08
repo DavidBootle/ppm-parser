@@ -20,9 +20,9 @@ represents the g value, and third represents the b value.
 */
 
 pub struct Pixel {
-    pub r: u8, // red pixel value
-    pub g: u8, // green pixel value
-    pub b: u8 // blue pixel value
+    pub r: u16, // red pixel value
+    pub g: u16, // green pixel value
+    pub b: u16 // blue pixel value
 }
 
 /*
@@ -33,9 +33,9 @@ of the PPM file. It also contains the pixels of the image,
 represented by a 1 dimensional array of pixels.
 */
 pub struct PPM {
-    pub width: i32, // image width
-    pub height: i32, // image height
-    pub maxc: i32, // max color value (usually 255)
+    pub width: u32, // image width
+    pub height: u32, // image height
+    pub maxc: u32, // max color value (usually 255)
     pub magic: String, // magic number (usually P6)
     pub pixels: Vec<Pixel>, // 1d pixel array
 }
@@ -51,4 +51,23 @@ impl PPM {
             pixels: Vec::new()
         }
     }
+
+    // returns pixel at the given coordinates
+    pub fn get_pixel(&self, mut x: i32, mut y: i32) -> &Pixel {
+        // if x or y are negative, then it will wrap to the other side of the image
+        while x < 0 {
+            x += self.width as i32;
+        }
+        while y < 0 {
+            y += self.height as i32;
+        }
+        
+        &self.pixels[(y * self.width as i32 + x) as usize]
+    }
+
+    // returns the total number of pixels in the image
+    pub fn pixel_count(&self) -> u32 {
+        self.width * self.height
+    }
+
 }

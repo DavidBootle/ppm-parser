@@ -8,13 +8,14 @@ use std::env;
 use std::fs::File;
 use std::path::Path;
 use std::process;
+use std::io::{BufReader};
 
 // custom
 mod ppm;
-mod utils;
+mod imageio;
 
 use ppm::PPM;
-use utils::parse_header;
+use imageio::{parse_header, read_image_data};
 
 fn print_help_text() {
     let executable_name = env::args().nth(0).unwrap();
@@ -57,12 +58,14 @@ fn main() {
             process::exit(1);
         }
     };
+
+    let mut reader = BufReader::new(input_file); // create a buffered reader to read the file
      
     // create a PPM object which represents the original image in memory, and is what will be read and modified by the program
     let mut image: PPM = PPM::new();
 
-    // process header information
-    parse_header(&input_file, &mut image);
+    // process header information and get the end location of the header
+    let header_length = parse_header(&mut reader, &mut image);
 
     // if no options were used, print image header information
     if args.len() == 2 {
@@ -81,5 +84,17 @@ fn main() {
         println!("Bit Depth: {}", image_bit);
     }
 
-    // check for options
+    // if there are additional arguments, then perform image operations
+    if args.len() > 2 {
+        
+        // verify that the image is of P6 format
+        if image.magic != "P6" {
+            eprintln!("This image is in {} format. This tool only supports P6 format.", image.magic);
+            process::exit(1);
+        }
+
+        // read image pixel data
+        read_image_data(&mut reader, &mut image, header_length);
+    }
+
 }
