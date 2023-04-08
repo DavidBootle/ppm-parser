@@ -15,7 +15,7 @@ mod ppm;
 mod imageio;
 
 use ppm::PPM;
-use imageio::{parse_header, read_image_data};
+use imageio::{parse_header, read_image_data, write_image};
 
 fn print_help_text() {
     let executable_name = env::args().nth(0).unwrap();
@@ -95,6 +95,21 @@ fn main() {
 
         // read image pixel data
         read_image_data(&mut reader, &mut image, header_length);
+
+        // TEMP
+        // create new file to write to
+        let filename_no_extension = input_file_path.file_stem().unwrap_or("output".as_ref()).to_str().unwrap_or("output");
+        let filename = format!("{}_copy.ppm", filename_no_extension);
+        let output_file_path = Path::new(&filename);
+        let mut output_file = match File::create(output_file_path) {
+            Ok(file) => file,
+            Err(_) => {
+                eprintln!("Error writing to output file.");
+                process::exit(1);
+            }
+        };
+        
+        write_image(&output_file, &image);
     }
 
 }

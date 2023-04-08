@@ -183,3 +183,13 @@ pub fn read_image_data(reader: &mut BufReader<File>, image: &mut PPM, header_len
         };
     }
 }
+
+pub fn write_image(out_file: &File, image: &PPM) {
+    /*
+	writeImageToFile()
+
+	This function takes a filestream pointer and a PPM object pointer as arguments.
+	It writes a new P6 PPM file to the filestream pointer using the data in the PPM object.
+	The filestream pointer must reference an opened filestream that is in write mode.
+	*/
+}
