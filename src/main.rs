@@ -13,9 +13,11 @@ use std::io::{BufReader};
 // custom
 mod ppm;
 mod imageio;
+mod imagefx;
 
 use ppm::PPM;
 use imageio::{parse_header, read_image_data, write_image};
+use imagefx::negative;
 
 fn print_help_text() {
     let executable_name = env::args().nth(0).unwrap();
@@ -108,6 +110,28 @@ fn main() {
                 process::exit(1);
             }
         };
+
+        for raw_letter in args[2].chars() {
+            let letter = raw_letter.to_ascii_lowercase();
+            match letter {
+
+                'c' => {
+                    // creates a copy of the image
+                    // this command does nothing, since the image will be saved already
+                    println!("Creating copy...");
+                }
+
+                'n' => {
+                    // converts the image into a negative
+                    negative(&mut image);
+                    println!("Converting to negative...");
+                }
+
+                _ => {
+                    println!("Unknown option {}. Ignoring...", letter);
+                }
+            }
+        }
         
         write_image(&output_file, &image);
     }
