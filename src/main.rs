@@ -11,8 +11,10 @@ use std::process;
 
 // custom
 mod ppm;
+mod utils;
 
 use ppm::PPM;
+use utils::parse_header;
 
 fn print_help_text() {
     let executable_name = env::args().nth(0).unwrap();
@@ -60,8 +62,24 @@ fn main() {
     let mut image: PPM = PPM::new();
 
     // process header information
+    parse_header(&input_file, &mut image);
 
-    // if no options were used, print the size of the image
+    // if no options were used, print image header information
+    if args.len() == 2 {
+        // print image width and height
+        println!("Image Dimensions: {} x {}", image.width, image.height);
+
+        // print format subtype
+        println!("Format Subtype: {}", image.magic);
+
+        // print bit depth
+        let image_bit: &str = match image.maxc {
+            255 => "8-bit",
+            65535 => "16-bit",
+            _ => "Unknown",
+        };
+        println!("Bit Depth: {}", image_bit);
+    }
 
     // check for options
 }
