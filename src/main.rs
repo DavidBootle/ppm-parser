@@ -99,8 +99,8 @@ fn main() {
         // TEMP
         // create new file to write to
         let filename_no_extension = input_file_path.file_stem().unwrap_or("output".as_ref()).to_str().unwrap_or("output");
-        let filename = format!("{}_copy.ppm", filename_no_extension);
-        let output_file_path = Path::new(&filename);
+        let filename = format!("{}_modified.ppm", filename_no_extension);
+        let output_file_path = input_file_path.parent().unwrap().join(filename);
         let output_file = match File::create(output_file_path) {
             Ok(file) => file,
             Err(_) => {
