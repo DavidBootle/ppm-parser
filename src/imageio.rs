@@ -1,7 +1,7 @@
 
 use crate::ppm::{PPM, Pixel};
 use std::fs::File;
-use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, BufWriter, Write};
 use std::process;
 
 /* File Operations */
@@ -192,4 +192,42 @@ pub fn write_image(out_file: &File, image: &PPM) {
 	It writes a new P6 PPM file to the filestream pointer using the data in the PPM object.
 	The filestream pointer must reference an opened filestream that is in write mode.
 	*/
+
+    // Create a new filestream writer
+    let mut writer = BufWriter::new(out_file);
+
+    // Create the new header text
+    let header = format!("{}\n# Modified with David Bootle's PPM Image Tool\n{} {}\n{}\n", image.magic, image.width, image.height, image.maxc);
+
+    // Write the header to the file
+    writer.write(header.as_bytes()).expect("Failed to write header to file.");
+
+    // Write the pixel data to the file
+    for pixel in &image.pixels {
+        match image.maxc {
+            255 => {
+                // Write 8 bit color data
+                let mut buffer = [0u8; 3];
+                buffer[0] = pixel.r as u8;
+                buffer[1] = pixel.g as u8;
+                buffer[2] = pixel.b as u8;
+                writer.write(&buffer).expect("Failed to write pixel data to file.");
+            }
+
+            65535 => {
+                // Write 16 bit color data
+                let mut buffer = [0u8; 6];
+                buffer[0..2].copy_from_slice(&pixel.r.to_be_bytes());
+                buffer[2..4].copy_from_slice(&pixel.g.to_be_bytes());
+                buffer[4..6].copy_from_slice(&pixel.b.to_be_bytes());
+                writer.write(&buffer).expect("Failed to write pixel data to file.");
+            }
+
+            _ => {
+                // Invalid bit depth
+                eprintln!("Cannot write pixel data for image with max color value of {}.", image.maxc);
+                process::exit(1);
+            }
+        }
+    }
 }

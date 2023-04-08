@@ -101,7 +101,7 @@ fn main() {
         let filename_no_extension = input_file_path.file_stem().unwrap_or("output".as_ref()).to_str().unwrap_or("output");
         let filename = format!("{}_copy.ppm", filename_no_extension);
         let output_file_path = Path::new(&filename);
-        let mut output_file = match File::create(output_file_path) {
+        let output_file = match File::create(output_file_path) {
             Ok(file) => file,
             Err(_) => {
                 eprintln!("Error writing to output file.");
