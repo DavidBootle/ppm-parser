@@ -13,11 +13,10 @@ use std::io::{BufReader};
 // custom
 mod ppm;
 mod imageio;
-mod imagefx;
+mod imageactions;
 
 use ppm::PPM;
 use imageio::{parse_header, read_image_data, write_image};
-use imagefx::negative;
 
 fn print_help_text() {
     let executable_name = env::args().nth(0).unwrap();
@@ -25,17 +24,23 @@ fn print_help_text() {
     println!("PPM IMAGE TOOL\n");
     println!("SYNTAX: {} <file> [options]\n", executable_name);
     println!("If run with no options, the tool will output the width and height of the image.\n");
-    println!("OPTIONS:");
-    println!("c/C - Create copy");
-    println!("g/G - Convert to grayscale");
-    println!("n/N - Convert to negative");
-    println!("r/R - Rotate clockwise");
-    println!("s/S - Half size (shrink image by 2x)");
-    println!("l/L - Apply LSD-like filter");
-    println!("f/F - Flip image horizontally");
-    println!("ir/IR - Isolate red channel");
-    println!("ig/IG - Isolate blue channel");
-    println!("ib/IB - Isolate green channel");
+
+    println!("-h, --help\t\tPrint this help text.");
+    println!("-c, --copy\t\tCreate an exact copy of the image.");
+    println!("-o [file_path], --output [file_path]\t\tSpecify where to save the image.");
+    println!("-n, --negative\t\tConvert the image to a negative.");
+    println!("-g, --grayscale\t\tConvert the image to grayscale.");
+    // println!("OPTIONS:");
+    // println!("c/C - Create copy");
+    // println!("g/G - Convert to grayscale");
+    // println!("n/N - Convert to negative");
+    // println!("r/R - Rotate clockwise");
+    // println!("s/S - Half size (shrink image by 2x)");
+    // println!("l/L - Apply LSD-like filter");
+    // println!("f/F - Flip image horizontally");
+    // println!("ir/IR - Isolate red channel");
+    // println!("ig/IG - Isolate blue channel");
+    // println!("ib/IB - Isolate green channel");
 }
  
 fn main() {
@@ -102,38 +107,87 @@ fn main() {
         // create new file to write to
         let filename_no_extension = input_file_path.file_stem().unwrap_or("output".as_ref()).to_str().unwrap_or("output");
         let filename = format!("{}_modified.ppm", filename_no_extension);
-        let output_file_path = input_file_path.parent().unwrap().join(filename);
-        let output_file = match File::create(output_file_path) {
-            Ok(file) => file,
-            Err(_) => {
-                eprintln!("Error writing to output file.");
-                process::exit(1);
+        let mut output_file_path = input_file_path.parent().unwrap().join(filename);
+
+        // for each additional argument after the input file, parse the argument and perform the specified operation
+        let mut skip_next = false;
+        let mut write_image_on_completion = false;
+
+        for i in 2..args.len() {
+            if skip_next {
+                skip_next = false;
+                continue;
             }
-        };
+            match args[i].as_ref() {
 
-        for raw_letter in args[2].chars() {
-            let letter = raw_letter.to_ascii_lowercase();
-            match letter {
-
-                'c' => {
-                    // creates a copy of the image
-                    // this command does nothing, since the image will be saved already
-                    println!("Creating copy...");
+                "-h" | "--help" => {
+                    // print the help text
+                    print_help_text();
                 }
 
-                'n' => {
-                    // converts the image into a negative
-                    negative(&mut image);
-                    println!("Converting to negative...");
+                "-c" | "--copy" => {
+                    // create image copy
+                    write_image_on_completion = true;
+                }
+
+                "-o" | "--output" => {
+                    // change the output path name
+                    // the argument after this one should be the new output path
+                    match args.get(i + 1) {
+                        Some(path) => {
+                            output_file_path = Path::new(path).to_path_buf();
+                            skip_next = true; // skip the next argument since it's the output path
+                        }
+
+                        // if there are no arguments after this one, then print an error message
+                        None => {
+                            eprintln!("No output path specified.");
+                        }
+                    }
+                }
+
+                "-n" | "--negative" => {
+                    // convert image to negative
+                    image.negative();
+                    write_image_on_completion = true;
+                }
+
+                "-g" | "--grayscale" => {
+                    // convert image to grayscale
+                    image.grayscale();
+                    write_image_on_completion = true;
+                }
+
+                "-rl" | "--rotate-left" => {
+                    // // rotate the image counter-clockwise
+                    // image = imageactions::rotate_left(image);
+
+                    // currently rotating left just basically flips the image diagonally
+                    // in order to actually rotate left, it's easier to just rotate right 3 times.
+                    // jank as hell, definetly fix at some point
+                    // TODO
+
+                    image = imageactions::rotate_right(image);
+                    image = imageactions::rotate_right(image);
+                    image = imageactions::rotate_right(image);
+                    write_image_on_completion = true;
+                }
+
+                "-rr" | "--rotate-right" => {
+                    // rotate the image clockwise
+                    image = imageactions::rotate_right(image);
+                    write_image_on_completion = true;
                 }
 
                 _ => {
-                    println!("Unknown option {}. Ignoring...", letter);
+                    println!("Unknown option '{}'. Use option -h to print the help menu.", args[i]);
                 }
             }
         }
-        
-        write_image(&output_file, &image);
-    }
 
+        if write_image_on_completion {
+            write_image(&output_file_path, &image);
+            println!("Saved image as '{}'.", output_file_path.canonicalize().expect("Failed to resolve path.").display());
+        }
+    }
 }

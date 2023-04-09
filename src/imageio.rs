@@ -2,6 +2,7 @@
 use crate::ppm::{PPM, Pixel};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, BufWriter, Write};
+use std::path::Path;
 use std::process;
 
 /* File Operations */
@@ -184,7 +185,7 @@ pub fn read_image_data(reader: &mut BufReader<File>, image: &mut PPM, header_len
     }
 }
 
-pub fn write_image(out_file: &File, image: &PPM) {
+pub fn write_image(output_file_path: &Path, image: &PPM) {
     /*
 	writeImageToFile()
 
@@ -192,6 +193,15 @@ pub fn write_image(out_file: &File, image: &PPM) {
 	It writes a new P6 PPM file to the filestream pointer using the data in the PPM object.
 	The filestream pointer must reference an opened filestream that is in write mode.
 	*/
+
+    // open file for writing
+    let out_file = match File::create(output_file_path) {
+        Ok(file) => file,
+        Err(_) => {
+            eprintln!("Error writing to output file.");
+            process::exit(1);
+        }
+    };
 
     // Create a new filestream writer
     let mut writer = BufWriter::new(out_file);
