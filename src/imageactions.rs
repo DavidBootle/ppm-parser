@@ -84,10 +84,10 @@ pub fn half_size(image: PPM) -> PPM {
         for y in 0..half_image.height {
             
             // get the 4 pixels that will be averaged
-            let pixel1 = image.get_pixel(x * 2, y * 2);
-            let pixel2 = image.get_pixel(x * 2 + 1, y * 2 + 1);
-            let pixel3 = image.get_pixel(x * 2 + 1, y * 2);
-            let pixel4 = image.get_pixel(x * 2, y * 2 + 1);
+            let pixel1 = image.get_pixel(x * 2, y * 2).unwrap();
+            let pixel2 = image.get_pixel(x * 2 + 1, y * 2 + 1).unwrap();
+            let pixel3 = image.get_pixel(x * 2 + 1, y * 2).unwrap();
+            let pixel4 = image.get_pixel(x * 2, y * 2 + 1).unwrap();
 
             // calculate the average of the 4 pixels
             let avg_r = (pixel1.r + pixel2.r + pixel3.r + pixel4.r) / 4;
@@ -130,13 +130,95 @@ pub fn double_size(image: PPM) -> PPM {
         for y in 0..image.height {
             
             // get the pixel that will be doubled
-            let pixel = image.get_pixel(x, y);
+            let pixel = image.get_pixel(x, y).unwrap();
 
             // assign new pixel to new image
             double_image.set_pixel(x * 2, y * 2, &pixel);
             double_image.set_pixel(x * 2 + 1, y * 2, &pixel);
             double_image.set_pixel(x * 2, y * 2 + 1, &pixel);
             double_image.set_pixel(x * 2 + 1, y * 2 + 1, &pixel);
+        }
+    }
+
+    return double_image;
+}
+
+/**
+Calculates the value of an "in-between" pixel of an image using bilinear interpolation.
+*/
+fn bilinear_interpolation(image: &PPM, x: f32, y: f32) -> Pixel {
+    // get the x and y values of the pixel on the original image
+
+    // get the x and y values of the 4 pixels that will be used for interpolation
+    let x1 = x.floor();
+    let x2 = x.floor() + 1.0;
+    let y1 = y.floor();
+    let y2 = y.floor() + 1.0;
+
+    // get the 4 pixels that will be used for interpolation
+    let q11 = image.get_pixel(x1 as u32, y1 as u32).unwrap(); // guarenteed to be in the image
+
+    // for the rest, if the pixel is in the image, then return the pixel
+    // otherwise, return q11, since the referenced pixel is out of bounds and doesn't exist
+    let q21 = match image.get_pixel(x2 as u32, y1 as u32) {
+        Some(pixel) => pixel,
+        None => q11
+    };
+    let q12 = match image.get_pixel(x1 as u32, y2 as u32) {
+        Some(pixel) => pixel,
+        None => q11
+    };
+    let q22 = match image.get_pixel(x2 as u32, y2 as u32) {
+        Some(pixel) => pixel,
+        None => q11
+    };
+
+    // red channel
+    let r1_r = q11.r as f32 * (x2 - x) / (x2 - x1) + q21.r as f32 * (x - x1) / (x2 - x1);
+    let r2_r: f32 = q12.r as f32 * (x2 - x) / (x2 - x1) + q22.r as f32 * (x - x1) / (x2 - x1);
+    let p_r = r1_r * (y2 - y) / (y2 - y1) + r2_r * (y - y1) / (y2 - y1);
+    
+    // green channel
+    let r1_g = q11.g as f32 * (x2 - x) / (x2 - x1) + q21.g as f32 * (x - x1) / (x2 - x1);
+    let r2_g: f32 = q12.g as f32 * (x2 - x) / (x2 - x1) + q22.g as f32 * (x - x1) / (x2 - x1);
+    let p_g = r1_g * (y2 - y) / (y2 - y1) + r2_g * (y - y1) / (y2 - y1);
+
+    // blue channel
+    let r1_b = q11.b as f32 * (x2 - x) / (x2 - x1) + q21.b as f32 * (x - x1) / (x2 - x1);
+    let r2_b: f32 = q12.b as f32 * (x2 - x) / (x2 - x1) + q22.b as f32 * (x - x1) / (x2 - x1);
+    let p_b = r1_b * (y2 - y) / (y2 - y1) + r2_b * (y - y1) / (y2 - y1);
+    
+    // create new interpolated pixel
+    let interpolated_pixel = Pixel {
+        r: p_r as u16,
+        g: p_g as u16,
+        b: p_b as u16
+    };
+
+    interpolated_pixel
+
+}
+
+/**
+Doubles the size of an image by using bilinear interpolation.
+*/
+pub fn double_bilinear(image: PPM) -> PPM {
+    let mut double_image = PPM::new();
+
+    // copy header info
+    double_image.magic = image.magic.clone();
+    double_image.maxc = image.maxc;
+    double_image.width = image.width * 2;
+    double_image.height = image.height * 2;
+
+    // assign the pixel array for the new image
+    double_image.pixels = vec![Pixel::new(); double_image.pixel_count() as usize];
+
+    // loop through each pixel in the new image
+    for x in 0..double_image.width {
+        for y in 0..double_image.height {
+            let pixel = bilinear_interpolation(&image, x as f32 / 2.0, y as f32 / 2.0);
+            double_image.set_pixel(x, y, &pixel);
         }
     }
 

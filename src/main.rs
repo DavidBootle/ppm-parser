@@ -34,6 +34,7 @@ fn print_help_text() {
     println!("-rr, --rotate-right\t\tRotate the image 90 degrees clockwise.");
     println!("-s, --shrink\t\tShrink the image by 2x.");
     println!("-d, --double\t\tDouble the size of the image by turning each pixel into a 2x2 square.");
+    println!("-db --double-bilinear\t\tDouble the size of the image using bilinear interpolation.");
     // println!("OPTIONS:");
     // println!("c/C - Create copy");
     // println!("g/G - Convert to grayscale");
@@ -185,6 +186,12 @@ fn main() {
                 "-d" | "--double" => {
                     // double the size of the image
                     image = imageactions::double_size(image);
+                    write_image_on_completion = true;
+                }
+
+                "-db" | "--double-bilinear" => {
+                    // double the size of the image by using bicubic interpolation
+                    image = imageactions::double_bilinear(image);
                     write_image_on_completion = true;
                 }
 
