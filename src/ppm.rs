@@ -20,6 +20,7 @@ represents the g value, and third represents the b value.
 */
 
 use std::fmt;
+use rayon::prelude::*;
 
 pub enum Channel {
     Red,
@@ -116,12 +117,11 @@ impl PPM {
     */
     pub fn negative(&mut self) {
         // loop over each pixel
-        for pixel in &mut self.pixels {
-            // invert the pixel
+        self.pixels.par_iter_mut().for_each(|pixel| {
             pixel.r = (self.maxc - pixel.r as u32) as u16;
             pixel.g = (self.maxc - pixel.g as u32) as u16;
             pixel.b = (self.maxc - pixel.b as u32) as u16;
-        }
+        });
     }
 
     /**
@@ -129,7 +129,7 @@ impl PPM {
     */
     pub fn grayscale(&mut self) {
         // loop over each pixel
-        for pixel in &mut self.pixels {
+        self.pixels.par_iter_mut().for_each(|pixel| {
             // calculate the average value of the r, g, and b pixels
             let avg = ((pixel.r as u32 + pixel.g as u32 + pixel.b as u32) / 3) as u16;
 
@@ -137,7 +137,7 @@ impl PPM {
             pixel.r = avg;
             pixel.g = avg;
             pixel.b = avg;
-        }
+        });
     }
 
     /**
@@ -145,7 +145,7 @@ impl PPM {
     */
     pub fn isolate_channel(&mut self, channel: Channel) {
         // loop over each pixel
-        for pixel in &mut self.pixels {
+        self.pixels.par_iter_mut().for_each(|pixel| {
             match channel {
                 Channel::Red => {
                     pixel.g = 0;
@@ -160,7 +160,7 @@ impl PPM {
                     pixel.g = 0;
                 }
             }
-        }
+        });
     }
 
     /**
@@ -168,7 +168,7 @@ impl PPM {
     */
     pub fn remove_channel(&mut self, channel: Channel) {
         // loop over each pixel
-        for pixel in &mut self.pixels {
+        self.pixels.par_iter_mut().for_each(|pixel| {
             match channel {
                 Channel::Red => {
                     pixel.r = 0;
@@ -180,7 +180,7 @@ impl PPM {
                     pixel.b = 0;
                 }
             }
-        }
+        });
     }
 
 }
