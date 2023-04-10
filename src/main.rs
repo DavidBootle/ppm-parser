@@ -35,17 +35,7 @@ fn print_help_text() {
     println!("-s, --shrink\t\tShrink the image by 2x.");
     println!("-d, --double\t\tDouble the size of the image by turning each pixel into a 2x2 square.");
     println!("-db --double-bilinear\t\tDouble the size of the image using bilinear interpolation.");
-    // println!("OPTIONS:");
-    // println!("c/C - Create copy");
-    // println!("g/G - Convert to grayscale");
-    // println!("n/N - Convert to negative");
-    // println!("r/R - Rotate clockwise");
-    // println!("s/S - Half size (shrink image by 2x)");
-    // println!("l/L - Apply LSD-like filter");
-    // println!("f/F - Flip image horizontally");
-    // println!("ir/IR - Isolate red channel");
-    // println!("ig/IG - Isolate blue channel");
-    // println!("ib/IB - Isolate green channel");
+    println!("-fh --flip-horizontal\t\tFlip the image horizontally.");
 }
  
 fn main() {
@@ -192,6 +182,12 @@ fn main() {
                 "-db" | "--double-bilinear" => {
                     // double the size of the image by using bicubic interpolation
                     image = imageactions::double_bilinear(image);
+                    write_image_on_completion = true;
+                }
+
+                "-fh" | "--flip-horizontal" => {
+                    // flip the image horizontally
+                    image = imageactions::flip_horizontal(image);
                     write_image_on_completion = true;
                 }
 

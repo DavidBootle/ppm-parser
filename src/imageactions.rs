@@ -145,6 +145,7 @@ pub fn double_size(image: PPM) -> PPM {
 
 /**
 Calculates the value of an "in-between" pixel of an image using bilinear interpolation.
+Used in the double_bilinear function.
 */
 fn bilinear_interpolation(image: &PPM, x: f32, y: f32) -> Pixel {
     // get the x and y values of the pixel on the original image
@@ -223,4 +224,30 @@ pub fn double_bilinear(image: PPM) -> PPM {
     }
 
     return double_image;
+}
+
+/**
+Flips an image in the horizontal direction.
+*/
+pub fn flip_horizontal(image: PPM) -> PPM {
+    let mut flipped_image = PPM::new();
+
+    // copy header info
+    flipped_image.magic = image.magic.clone();
+    flipped_image.maxc = image.maxc;
+    flipped_image.width = image.width;
+    flipped_image.height = image.height;
+
+    // assign the pixel array for the new image
+    flipped_image.pixels = vec![Pixel::new(); flipped_image.pixel_count() as usize];
+
+    // loop through each pixel in the new image
+    for x in 0..flipped_image.width {
+        for y in 0..flipped_image.height {
+            let pixel = image.get_pixel(flipped_image.width - x -1, y).unwrap(); // guarenteed to be in the image
+            flipped_image.set_pixel(x, y, &pixel);
+        }
+    }
+
+    return flipped_image;
 }
