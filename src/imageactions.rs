@@ -24,7 +24,7 @@ pub fn rotate_left(image: PPM) -> PPM {
         let old_y = x;
 
         // get original pixel
-        let old_pixel = image.get_pixel(old_x, old_y).expect("Fatal error when rotating image.");
+        let old_pixel = image.get_pixel(old_x, old_y).unwrap();
         *pixel = old_pixel.clone();
     });
 
@@ -45,20 +45,33 @@ pub fn rotate_right(image: PPM) -> PPM {
     rotated_image.pixels = vec![Pixel::new(); image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..image.width {
-        for y in 0..image.height {
+    rotated_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % rotated_image.width;
+        let y = (index as u32) / rotated_image.width;
 
-            let current_pixel_pos = y * image.width + x; // get the current pixel position in the 1d array
+        // calculate pixel mappings
+        let old_x = y;
+        let old_y = rotated_image.width - x - 1;
 
-            // calculate the x and y value for the pixel on the new rotated image
-			let new_x = rotated_image.width - y - 1;
-			let new_y = x;
+        // get original pixel
+        let old_pixel = image.get_pixel(old_x, old_y).unwrap();
+        *pixel = old_pixel.clone();
+    });
+    
+    // for x in 0..image.width {
+    //     for y in 0..image.height {
 
-            // calculate the pixel position in the 1d array for the pixel on the new rotated image
-			let rotated_pixel_pos = new_y * rotated_image.width + new_x;
-            rotated_image.pixels[rotated_pixel_pos as usize] = image.pixels[current_pixel_pos as usize]; // copy pixel to the new location
-        }
-    }
+    //         let current_pixel_pos = y * image.width + x; // get the current pixel position in the 1d array
+
+    //         // calculate the x and y value for the pixel on the new rotated image
+	// 		let new_x = rotated_image.width - y - 1;
+	// 		let new_y = x;
+
+    //         // calculate the pixel position in the 1d array for the pixel on the new rotated image
+	// 		let rotated_pixel_pos = new_y * rotated_image.width + new_x;
+    //         rotated_image.pixels[rotated_pixel_pos as usize] = image.pixels[current_pixel_pos as usize]; // copy pixel to the new location
+    //     }
+    // }
 
     return rotated_image;
 }
