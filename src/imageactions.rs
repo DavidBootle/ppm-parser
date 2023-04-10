@@ -15,20 +15,18 @@ pub fn rotate_left(image: PPM) -> PPM {
     rotated_image.pixels = vec![Pixel::new(); image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..image.width {
-        for y in 0..image.height {
+    rotated_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % rotated_image.width;
+        let y = (index as u32) / rotated_image.width;
 
-            let current_pixel_pos = y * image.width + x; // get the current pixel position in the 1d array
+        // calculate pixel mappings
+        let old_x = rotated_image.height - y - 1;
+        let old_y = x;
 
-            // calculate the x and y value for the pixel on the new rotated image
-			let new_x = y;
-			let new_y = rotated_image.height - x - 1;
-
-            // calculate the pixel position in the 1d array for the pixel on the new rotated image
-			let rotated_pixel_pos = new_y * rotated_image.width + new_x;
-            rotated_image.pixels[rotated_pixel_pos as usize] = image.pixels[current_pixel_pos as usize]; // copy pixel to the new location
-        }
-    }
+        // get original pixel
+        let old_pixel = image.get_pixel(old_x, old_y).expect("Fatal error when rotating image.");
+        *pixel = old_pixel.clone();
+    });
 
     return rotated_image;
 }
