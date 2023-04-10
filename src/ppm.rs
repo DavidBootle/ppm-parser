@@ -99,10 +99,10 @@ impl PPM {
     /**
     Sets the pixel at the given x and y coordinate.
     */
-    pub fn set_pixel(&mut self, x: u32, y: u32, pixel: &Pixel) {
-        // if x or y are negative, then it will wrap to the other side of the image
-        self.pixels[(y * self.width + x) as usize] = pixel.clone();
-    }
+    // pub fn set_pixel(&mut self, x: u32, y: u32, pixel: &Pixel) {
+    //     // if x or y are negative, then it will wrap to the other side of the image
+    //     self.pixels[(y * self.width + x) as usize] = pixel.clone();
+    // }
 
     /**
     Returns the total number of pixels in the image.

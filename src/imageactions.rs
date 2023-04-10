@@ -255,14 +255,15 @@ pub fn flip_horizontal(image: PPM) -> PPM {
     flipped_image.pixels = vec![Pixel::new(); flipped_image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..flipped_image.width {
-        for y in 0..flipped_image.height {
-            let pixel = image.get_pixel(flipped_image.width - x -1, y).unwrap(); // guaranteed to be in the image
-            flipped_image.set_pixel(x, y, &pixel);
-        }
-    }
+    flipped_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % flipped_image.width;
+        let y = (index as u32) / flipped_image.width;
 
-    return flipped_image;
+        let original_pixel = image.get_pixel(flipped_image.width - x -1, y).unwrap(); // guaranteed to be in the image
+        *pixel = original_pixel.clone();
+    });
+
+    flipped_image
 }
 
 /**
@@ -281,12 +282,13 @@ pub fn flip_vertical(image: PPM) -> PPM {
     flipped_image.pixels = vec![Pixel::new(); flipped_image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..flipped_image.width {
-        for y in 0..flipped_image.height {
-            let pixel = image.get_pixel(x, flipped_image.height - y - 1).unwrap(); // guaranteed to be in the image
-            flipped_image.set_pixel(x, y, &pixel);
-        }
-    }
+    flipped_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % flipped_image.width;
+        let y = (index as u32) / flipped_image.width;
 
-    return flipped_image;
+        let original_pixel = image.get_pixel(x, flipped_image.height - y - 1).unwrap(); // guaranteed to be in the image
+        *pixel = original_pixel.clone();
+    });
+
+    flipped_image
 }
