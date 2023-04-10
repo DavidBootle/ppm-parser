@@ -21,6 +21,12 @@ represents the g value, and third represents the b value.
 
 use std::fmt;
 
+pub enum Channel {
+    Red,
+    Green,
+    Blue
+}
+
 #[derive(Copy, Clone)]
 pub struct Pixel {
     pub r: u16, // red pixel value
@@ -131,6 +137,49 @@ impl PPM {
             pixel.r = avg;
             pixel.g = avg;
             pixel.b = avg;
+        }
+    }
+
+    /**
+    Isolates a color channel.
+    */
+    pub fn isolate_channel(&mut self, channel: Channel) {
+        // loop over each pixel
+        for pixel in &mut self.pixels {
+            match channel {
+                Channel::Red => {
+                    pixel.g = 0;
+                    pixel.b = 0;
+                },
+                Channel::Green => {
+                    pixel.r = 0;
+                    pixel.b = 0;
+                },
+                Channel::Blue => {
+                    pixel.r = 0;
+                    pixel.g = 0;
+                }
+            }
+        }
+    }
+
+    /**
+    Removes the specified color channel.
+    */
+    pub fn remove_channel(&mut self, channel: Channel) {
+        // loop over each pixel
+        for pixel in &mut self.pixels {
+            match channel {
+                Channel::Red => {
+                    pixel.r = 0;
+                },
+                Channel::Green => {
+                    pixel.g = 0;
+                },
+                Channel::Blue => {
+                    pixel.b = 0;
+                }
+            }
         }
     }
 

@@ -15,7 +15,7 @@ mod ppm;
 mod imageio;
 mod imageactions;
 
-use ppm::PPM;
+use ppm::{PPM, Channel};
 use imageio::{parse_header, read_image_data, write_image};
 
 fn print_help_text() {
@@ -37,6 +37,12 @@ fn print_help_text() {
     println!("-db --double-bilinear\t\tDouble the size of the image using bilinear interpolation.");
     println!("-fh --flip-horizontal\t\tFlip the image horizontally.");
     println!("-fv --flip-vertical\t\tFlip the image vertically.");
+    println!("-ir --isolate-red\t\tIsolate the red channel of the image.");
+    println!("-ig --isolate-green\t\tIsolate the green channel of the image.");
+    println!("-ib --isolate-blue\t\tIsolate the blue channel of the image.");
+    println!("-Dr --delete-red\t\tDelete the red channel of the image.");
+    println!("-Dg --delete-green\t\tDelete the green channel of the image.");
+    println!("-Db --delete-blue\t\tDelete the blue channel of the image.");
 }
  
 fn main() {
@@ -195,6 +201,42 @@ fn main() {
                 "-fv" | "--flip-vertical" => {
                     // flip the image vertically
                     image = imageactions::flip_vertical(image);
+                    write_image_on_completion = true;
+                }
+
+                "-ir" | "--isolate-red" => {
+                    // isolate the red channel
+                    image.isolate_channel(Channel::Red);
+                    write_image_on_completion = true;
+                }
+
+                "-ig" | "--isolate-green" => {
+                    // isolate the green channel
+                    image.isolate_channel(Channel::Green);
+                    write_image_on_completion = true;
+                }
+
+                "-ib" | "--isolate-blue" => {
+                    // isolate the blue channel
+                    image.isolate_channel(Channel::Blue);
+                    write_image_on_completion = true;
+                }
+
+                "-Dr" | "--delete-red" => {
+                    // delete the red channel
+                    image.remove_channel(Channel::Red);
+                    write_image_on_completion = true;
+                }
+
+                "-Dg" | "--delete-green" => {
+                    // delete the green channel
+                    image.remove_channel(Channel::Green);
+                    write_image_on_completion = true;
+                }
+
+                "-Db" | "--delete-blue" => {
+                    // delete the blue channel
+                    image.remove_channel(Channel::Blue);
                     write_image_on_completion = true;
                 }
 
