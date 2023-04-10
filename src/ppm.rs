@@ -19,6 +19,8 @@ be created, where the first element represents the r value, the second
 represents the g value, and third represents the b value.
 */
 
+use std::fmt;
+
 #[derive(Copy, Clone)]
 pub struct Pixel {
     pub r: u16, // red pixel value
@@ -34,6 +36,18 @@ impl Pixel {
             g: 0,
             b: 0
         }
+    }
+}
+
+impl fmt::Display for Pixel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.r, self.g, self.b)
+    }
+}
+
+impl fmt::Debug for Pixel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Pixel {{r: {}, g: {}, b: {}}}", self.r, self.g, self.b)
     }
 }
 
@@ -67,9 +81,13 @@ impl PPM {
     /**
     Returns the pixel at the given x and y coordinate.
     */
-    pub fn get_pixel(&self, x: u32, y: u32) -> &Pixel {
+    pub fn get_pixel(&self, x: u32, y: u32) -> Option<&Pixel> {
         // if x or y are negative, then it will wrap to the other side of the image
-        &self.pixels[(y * self.width + x) as usize]
+        if (x >= self.width) || (y >= self.height) {
+            None
+        } else {
+            Some(&self.pixels[(y * self.width + x) as usize])
+        }
     }
 
     /**
