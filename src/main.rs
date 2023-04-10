@@ -9,6 +9,7 @@ use std::fs::File;
 use std::path::Path;
 use std::process;
 use std::io::{BufReader};
+use std::time::Instant;
 
 // custom
 mod ppm;
@@ -28,6 +29,8 @@ fn print_help_text() {
     println!("-h, --help\t\tPrint this help text.");
     println!("-c, --copy\t\tCreate an exact copy of the image.");
     println!("-o [file_path], --output [file_path]\t\tSpecify where to save the image.");
+    println!("-t --time\t\tPrint the time it took to run the program.");
+    println!("\nImage Effects");
     println!("-n, --negative\t\tConvert the image to a negative.");
     println!("-g, --grayscale\t\tConvert the image to grayscale.");
     println!("-rl, --rotate-left\t\tRotate the image 90 degrees counter-clockwise.");
@@ -55,6 +58,17 @@ fn main() {
  
     // since the arguments actually exist, create a vector to store them
     let args: Vec<String> = env::args().collect();
+
+    // if the user selected the time option, start a timer
+    let start_time = match args.contains(&String::from("-t")) || args.contains(&String::from("--time")) {
+        true => {
+            Some(Instant::now())
+        }
+
+        false => {
+            None
+        }
+    };
 
     /* Open Input File */
     let input_file_path = Path::new(&args[1]); // create a new path to represent the input file
@@ -240,6 +254,11 @@ fn main() {
                     write_image_on_completion = true;
                 }
 
+                "-t" | "--time" => {
+                    // time option, used for debugging and profiling. Skip
+                    continue;
+                }
+
                 _ => {
                     println!("Unknown option '{}'. Use option -h to print the help menu.", args[i]);
                 }
@@ -249,6 +268,18 @@ fn main() {
         if write_image_on_completion {
             write_image(&output_file_path, &image);
             println!("Saved image as '{}'.", output_file_path.canonicalize().expect("Failed to resolve path.").display());
+        }
+
+        // print start time if the time option was used
+        match start_time {
+            Some(time) => {
+                let duration = time.elapsed();
+                println!("Program completed in: {}ms", duration.as_millis());
+            }
+
+            None => {
+                // do nothing
+            }
         }
     }
 }
