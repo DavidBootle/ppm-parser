@@ -1,4 +1,5 @@
 use crate::ppm::{PPM, Pixel};
+use rayon::prelude::*;
 
 pub fn rotate_left(image: PPM) -> PPM {
     // create a new PPM object to represent the rotated image
@@ -216,12 +217,13 @@ pub fn double_bilinear(image: PPM) -> PPM {
     double_image.pixels = vec![Pixel::new(); double_image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..double_image.width {
-        for y in 0..double_image.height {
-            let pixel = bilinear_interpolation(&image, x as f32 / 2.0, y as f32 / 2.0);
-            double_image.set_pixel(x, y, &pixel);
-        }
-    }
+    double_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % double_image.width;
+        let y = (index as u32) / double_image.width;
+
+        let new_pixel = bilinear_interpolation(&image, x as f32 / 2.0, y as f32 / 2.0);
+        *pixel = new_pixel;
+    });
 
     return double_image;
 }
