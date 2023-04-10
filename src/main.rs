@@ -162,14 +162,7 @@ fn main() {
                     // // rotate the image counter-clockwise
                     // image = imageactions::rotate_left(image);
 
-                    // currently rotating left just basically flips the image diagonally
-                    // in order to actually rotate left, it's easier to just rotate right 3 times.
-                    // jank as hell, definetly fix at some point
-                    // TODO
-
-                    image = imageactions::rotate_right(image);
-                    image = imageactions::rotate_right(image);
-                    image = imageactions::rotate_right(image);
+                    image = imageactions::rotate_left(image);
                     write_image_on_completion = true;
                 }
 

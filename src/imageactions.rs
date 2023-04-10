@@ -21,7 +21,7 @@ pub fn rotate_left(image: PPM) -> PPM {
 
             // calculate the x and y value for the pixel on the new rotated image
 			let new_x = y;
-			let new_y = x;
+			let new_y = rotated_image.height - x - 1;
 
             // calculate the pixel position in the 1d array for the pixel on the new rotated image
 			let rotated_pixel_pos = new_y * rotated_image.width + new_x;
