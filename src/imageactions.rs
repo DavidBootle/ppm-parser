@@ -64,6 +64,9 @@ pub fn rotate_right(image: PPM) -> PPM {
     return rotated_image;
 }
 
+/**
+Halfs the size of the image by averaging the pixels.
+ */
 pub fn half_size(image: PPM) -> PPM {
     let mut half_image = PPM::new();
 
@@ -104,4 +107,38 @@ pub fn half_size(image: PPM) -> PPM {
     }
 
     return half_image;
+}
+
+
+/**
+Doubles the size of an image by copying each pixel into a 2x2 square
+*/
+pub fn double_size(image: PPM) -> PPM {
+    let mut double_image = PPM::new();
+
+    // copy header info
+    double_image.magic = image.magic.clone();
+    double_image.maxc = image.maxc;
+    double_image.width = image.width * 2;
+    double_image.height = image.height * 2;
+
+    // assign the pixel array for the new image
+    double_image.pixels = vec![Pixel::new(); double_image.pixel_count() as usize];
+
+    // loop through each pixel in the old image
+    for x in 0..image.width {
+        for y in 0..image.height {
+            
+            // get the pixel that will be doubled
+            let pixel = image.get_pixel(x, y);
+
+            // assign new pixel to new image
+            double_image.set_pixel(x * 2, y * 2, &pixel);
+            double_image.set_pixel(x * 2 + 1, y * 2, &pixel);
+            double_image.set_pixel(x * 2, y * 2 + 1, &pixel);
+            double_image.set_pixel(x * 2 + 1, y * 2 + 1, &pixel);
+        }
+    }
+
+    return double_image;
 }

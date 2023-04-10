@@ -33,6 +33,7 @@ fn print_help_text() {
     println!("-rl, --rotate-left\t\tRotate the image 90 degrees counter-clockwise.");
     println!("-rr, --rotate-right\t\tRotate the image 90 degrees clockwise.");
     println!("-s, --shrink\t\tShrink the image by 2x.");
+    println!("-d, --double\t\tDouble the size of the image by turning each pixel into a 2x2 square.");
     // println!("OPTIONS:");
     // println!("c/C - Create copy");
     // println!("g/G - Convert to grayscale");
@@ -178,6 +179,12 @@ fn main() {
                 "-s" | "--shrink" => {
                     // shrink the image by 2x
                     image = imageactions::half_size(image);
+                    write_image_on_completion = true;
+                }
+
+                "-d" | "--double" => {
+                    // double the size of the image
+                    image = imageactions::double_size(image);
                     write_image_on_completion = true;
                 }
 
