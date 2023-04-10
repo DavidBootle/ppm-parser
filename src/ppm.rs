@@ -66,19 +66,19 @@ impl PPM {
 
     /**
     Returns the pixel at the given x and y coordinate.
-    Negative coordinate values will wrap around the image.
     */
-    // pub fn get_pixel(&self, mut x: i32, mut y: i32) -> &Pixel {
-    //     // if x or y are negative, then it will wrap to the other side of the image
-    //     while x < 0 {
-    //         x += self.width as i32;
-    //     }
-    //     while y < 0 {
-    //         y += self.height as i32;
-    //     }
-        
-    //     &self.pixels[(y * self.width as i32 + x) as usize]
-    // }
+    pub fn get_pixel(&self, x: u32, y: u32) -> &Pixel {
+        // if x or y are negative, then it will wrap to the other side of the image
+        &self.pixels[(y * self.width + x) as usize]
+    }
+
+    /**
+    Sets the pixel at the given x and y coordinate.
+    */
+    pub fn set_pixel(&mut self, x: u32, y: u32, pixel: &Pixel) {
+        // if x or y are negative, then it will wrap to the other side of the image
+        self.pixels[(y * self.width + x) as usize] = pixel.clone();
+    }
 
     /**
     Returns the total number of pixels in the image.

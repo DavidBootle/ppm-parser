@@ -30,6 +30,9 @@ fn print_help_text() {
     println!("-o [file_path], --output [file_path]\t\tSpecify where to save the image.");
     println!("-n, --negative\t\tConvert the image to a negative.");
     println!("-g, --grayscale\t\tConvert the image to grayscale.");
+    println!("-rl, --rotate-left\t\tRotate the image 90 degrees counter-clockwise.");
+    println!("-rr, --rotate-right\t\tRotate the image 90 degrees clockwise.");
+    println!("-s, --shrink\t\tShrink the image by 2x.");
     // println!("OPTIONS:");
     // println!("c/C - Create copy");
     // println!("g/G - Convert to grayscale");
@@ -169,6 +172,12 @@ fn main() {
                 "-rr" | "--rotate-right" => {
                     // rotate the image clockwise
                     image = imageactions::rotate_right(image);
+                    write_image_on_completion = true;
+                }
+
+                "-s" | "--shrink" => {
+                    // shrink the image by 2x
+                    image = imageactions::half_size(image);
                     write_image_on_completion = true;
                 }
 
