@@ -92,33 +92,33 @@ pub fn half_size(image: PPM) -> PPM {
     half_image.pixels = vec![Pixel::new(); half_image.pixel_count() as usize];
 
     // loop through each pixel in the new image
-    for x in 0..half_image.width {
-        for y in 0..half_image.height {
-            
-            // get the 4 pixels that will be averaged
-            let pixel1 = image.get_pixel(x * 2, y * 2).unwrap();
-            let pixel2 = image.get_pixel(x * 2 + 1, y * 2 + 1).unwrap();
-            let pixel3 = image.get_pixel(x * 2 + 1, y * 2).unwrap();
-            let pixel4 = image.get_pixel(x * 2, y * 2 + 1).unwrap();
+    half_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        let x = (index as u32) % half_image.width;
+        let y = (index as u32) / half_image.width;
 
-            // calculate the average of the 4 pixels
-            let avg_r = (pixel1.r + pixel2.r + pixel3.r + pixel4.r) / 4;
-            let avg_g = (pixel1.g + pixel2.g + pixel3.g + pixel4.g) / 4;
-            let avg_b = (pixel1.b + pixel2.b + pixel3.b + pixel4.b) / 4;
+        // get the 4 pixels that will be averaged
+        let pixel1 = image.get_pixel(x * 2, y * 2).unwrap();
+        let pixel2 = image.get_pixel(x * 2 + 1, y * 2 + 1).unwrap();
+        let pixel3 = image.get_pixel(x * 2 + 1, y * 2).unwrap();
+        let pixel4 = image.get_pixel(x * 2, y * 2 + 1).unwrap();
 
-            // create a new pixel
-            let avg_pixel = Pixel {
-                r: avg_r,
-                g: avg_g,
-                b: avg_b
-            };
+        // calculate the average of the 4 pixels
+        let avg_r = ((pixel1.r as u32 + pixel2.r as u32 + pixel3.r as u32 + pixel4.r as u32) / 4) as u16;
+        let avg_g = ((pixel1.g as u32 + pixel2.g as u32 + pixel3.g as u32 + pixel4.g as u32) / 4) as u16;
+        let avg_b = ((pixel1.b as u32 + pixel2.b as u32 + pixel3.b as u32 + pixel4.b as u32) / 4) as u16;
 
-            // assign new pixel to new image
-            half_image.set_pixel(x, y, &avg_pixel);
-        }
-    }
+        // create a new pixel
+        let avg_pixel = Pixel {
+            r: avg_r,
+            g: avg_g,
+            b: avg_b
+        };
 
-    return half_image;
+        // assign new pixel to new image
+        *pixel = avg_pixel.clone();
+    });
+
+    half_image
 }
 
 
@@ -137,20 +137,20 @@ pub fn double_size(image: PPM) -> PPM {
     // assign the pixel array for the new image
     double_image.pixels = vec![Pixel::new(); double_image.pixel_count() as usize];
 
-    // loop through each pixel in the old image
-    for x in 0..image.width {
-        for y in 0..image.height {
-            
-            // get the pixel that will be doubled
-            let pixel = image.get_pixel(x, y).unwrap();
+    // loop through each pixel in the new image
+    double_image.pixels.par_iter_mut().enumerate().for_each(|(index, pixel)| {
+        // get the coordiantes of the current pixel
+        let x = (index as u32) % double_image.width;
+        let y = (index as u32) / double_image.width;
 
-            // assign new pixel to new image
-            double_image.set_pixel(x * 2, y * 2, &pixel);
-            double_image.set_pixel(x * 2 + 1, y * 2, &pixel);
-            double_image.set_pixel(x * 2, y * 2 + 1, &pixel);
-            double_image.set_pixel(x * 2 + 1, y * 2 + 1, &pixel);
-        }
-    }
+        // get the coordinates of the representative pixel on the old image
+        let old_x = x / 2;
+        let old_y = y / 2;
+
+        // get the representative pixel
+        let old_pixel = image.get_pixel(old_x, old_y).unwrap();
+        *pixel = old_pixel.clone();
+    });
 
     return double_image;
 }
