@@ -36,6 +36,7 @@ fn print_help_text() {
     println!("-d, --double\t\tDouble the size of the image by turning each pixel into a 2x2 square.");
     println!("-db --double-bilinear\t\tDouble the size of the image using bilinear interpolation.");
     println!("-fh --flip-horizontal\t\tFlip the image horizontally.");
+    println!("-fv --flip-vertical\t\tFlip the image vertically.");
 }
  
 fn main() {
@@ -188,6 +189,12 @@ fn main() {
                 "-fh" | "--flip-horizontal" => {
                     // flip the image horizontally
                     image = imageactions::flip_horizontal(image);
+                    write_image_on_completion = true;
+                }
+
+                "-fv" | "--flip-vertical" => {
+                    // flip the image vertically
+                    image = imageactions::flip_vertical(image);
                     write_image_on_completion = true;
                 }
 

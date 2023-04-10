@@ -157,7 +157,7 @@ fn bilinear_interpolation(image: &PPM, x: f32, y: f32) -> Pixel {
     let y2 = y.floor() + 1.0;
 
     // get the 4 pixels that will be used for interpolation
-    let q11 = image.get_pixel(x1 as u32, y1 as u32).unwrap(); // guarenteed to be in the image
+    let q11 = image.get_pixel(x1 as u32, y1 as u32).unwrap(); // guaranteed to be in the image
 
     // for the rest, if the pixel is in the image, then return the pixel
     // otherwise, return q11, since the referenced pixel is out of bounds and doesn't exist
@@ -244,7 +244,33 @@ pub fn flip_horizontal(image: PPM) -> PPM {
     // loop through each pixel in the new image
     for x in 0..flipped_image.width {
         for y in 0..flipped_image.height {
-            let pixel = image.get_pixel(flipped_image.width - x -1, y).unwrap(); // guarenteed to be in the image
+            let pixel = image.get_pixel(flipped_image.width - x -1, y).unwrap(); // guaranteed to be in the image
+            flipped_image.set_pixel(x, y, &pixel);
+        }
+    }
+
+    return flipped_image;
+}
+
+/**
+Flips an image in the vertical direction.
+*/
+pub fn flip_vertical(image: PPM) -> PPM {
+    let mut flipped_image = PPM::new();
+
+    // copy header info
+    flipped_image.magic = image.magic.clone();
+    flipped_image.maxc = image.maxc;
+    flipped_image.width = image.width;
+    flipped_image.height = image.height;
+
+    // assign the pixel array for the new image
+    flipped_image.pixels = vec![Pixel::new(); flipped_image.pixel_count() as usize];
+
+    // loop through each pixel in the new image
+    for x in 0..flipped_image.width {
+        for y in 0..flipped_image.height {
+            let pixel = image.get_pixel(x, flipped_image.height - y - 1).unwrap(); // guaranteed to be in the image
             flipped_image.set_pixel(x, y, &pixel);
         }
     }
